@@ -24,6 +24,7 @@ Output is data/rivals.csv.gz, committed before compare.py or safezone.py exist, 
 discipline as the original run.
 
     python3 rivals.py
+    python3 rivals.py --clean
     python3 rivals.py --test
 """
 
@@ -46,6 +47,30 @@ COLUMNS = ["holdout", "sale_date", "borough", "neighborhood",
            "building_class_category", "building_class", "address",
            "sqft", "units", "built", "comp_level", "comp_n", "comp_ppsf",
            "comps", "hedonic", "assessed", "actual"]
+
+
+UNIT_LOT = 1001      # New York numbers condominium unit lots from 1001
+TOWER_SQFT = 20_000  # no apartment is this big, so an area this large is the building's
+
+
+def is_unit_sale(r):
+    """True when the row is one apartment carrying its whole building's floor area.
+
+    A second trap in the source, and one the first run did not catch. When a single
+    unit changes hands, New York sometimes records it against the building's own tax
+    lot with the building's area, and puts the apartment number in the address. A
+    $130,000 flat at 200 Central Park West arrives carrying 1.4 million square feet.
+    Every method here multiplies an area by a rate, so every method prices it as a
+    tower.
+
+    The signature is an apartment designation on a row of 20,000 square feet or more.
+    Nine tenths of those price out under $50 a square foot, which is not a number any
+    New York building has ever traded at, while the rest of the large-building rows
+    have a median of $258. Unit sales below that size are left alone: across all of
+    them the median is about $1,000 a square foot, which is simply what a Manhattan
+    apartment costs.
+    """
+    return r["sqft"] >= TOWER_SQFT and ("," in r["address"] or int(r["lot"]) >= UNIT_LOT)
 
 
 def lots_by_sale(raw):
@@ -127,10 +152,24 @@ def run_year(rows, groups, roll, year):
     return out
 
 
-def main():
+def main(clean=False):
+    """clean=True also removes the mismeasured unit sales from the comp pool itself.
+
+    The scoring can throw those rows out of the answer key, but it cannot throw them out
+    of the comps: a $4 per square foot sale sitting in a large-building cell drags the
+    median every large building in that cell is valued from. The clean run rebuilds
+    every estimate without them, which is the only way to tell whether the method fails
+    on big buildings or the data does.
+    """
+    out_path = os.path.join(DATA, "clean.csv.gz") if clean else OUT
     raw = comps.load()
     groups = lots_by_sale(raw)
     rows, folded = comps.collapse_bulk(raw)
+    if clean:
+        before = len(rows)
+        rows = [r for r in rows if not is_unit_sale(r)]
+        print(f"dropped {before - len(rows)} unit sales from the comp pool and the "
+              f"scored set")
     roll = assessed_values()
     print(f"{len(rows)} sales after folding {folded} multi-lot rows, "
           f"{len(roll)} lots with a published market value")
@@ -142,11 +181,11 @@ def main():
         everything += got
         print(f"  {year}: {len(got):,} estimates, {n_assessed:,} with an assessment")
 
-    with gzip.open(OUT, "wt", newline="") as fh:
+    with gzip.open(out_path, "wt", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=COLUMNS)
         w.writeheader()
         w.writerows(everything)
-    print(f"wrote {len(everything):,} rows to {OUT}")
+    print(f"wrote {len(everything):,} rows to {out_path}")
 
 
 def test():
@@ -187,4 +226,7 @@ def test():
 
 
 if __name__ == "__main__":
-    test() if "--test" in sys.argv else main()
+    if "--test" in sys.argv:
+        test()
+    else:
+        main(clean="--clean" in sys.argv)
