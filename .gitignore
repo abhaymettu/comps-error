@@ -1,0 +1,4 @@
+data/*
+!data/predictions.csv
+__pycache__/
+*.pyc
