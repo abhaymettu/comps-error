@@ -38,9 +38,82 @@ Size bands are log2 of gross square feet, so a 2,000 and a 200,000 square foot b
 are never comps for each other. The comp pool is the trailing twelve months before the
 cutoff, because that is the window an analyst actually works from.
 
+## Findings
+
+22,343 held-out 2025 sales, valued from pre-2025 comps.
+
+| | |
+|---|---|
+| median signed error | **-4.3%** |
+| median absolute error | **20.5%** |
+| within 10% of price | 25.5% |
+| within 20% of price | 48.9% |
+| overvalued by 2x or more | 6.5% |
+| undervalued by half or more | 4.0% |
+
+**The method is close to unbiased and individually unreliable, and those are different
+failures.** A bias can be corrected with one factor. Dispersion cannot be corrected by
+anything. Half of all valuations miss by more than a fifth, one in four lands within a
+tenth, and one in sixteen is out by a factor of two or more.
+
+### It fails hardest exactly where institutional money goes
+
+| building size | n | bias | MdAPE | within 10% |
+|---|---|---|---|---|
+| under 2k sqft | 11,255 | -7.7% | 18.0% | 28.8% |
+| 2k to 5k | 9,040 | -0.7% | 21.3% | 24.7% |
+| 5k to 20k | 1,376 | +15.5% | 43.9% | 11.5% |
+| 20k to 100k | 489 | +17.4% | **61.5%** | 6.5% |
+| 100k+ | 183 | +7.8% | 52.4% | 16.9% |
+
+| borough | n | MdAPE | within 10% |
+|---|---|---|---|
+| Queens | 8,508 | 17.9% | 29.1% |
+| Staten Island | 3,638 | 18.4% | 28.4% |
+| Bronx | 2,551 | 21.2% | 25.0% |
+| Brooklyn | 6,769 | 23.5% | 21.7% |
+| **Manhattan** | 877 | **49.6%** | 8.7% |
+
+| building class | n | bias | MdAPE |
+|---|---|---|---|
+| one family dwellings | 9,828 | -5.1% | 18.1% |
+| two family dwellings | 7,250 | -3.8% | 19.4% |
+| three family dwellings | 1,991 | -5.8% | 21.0% |
+| rentals, walkup | 1,437 | +4.1% | 37.5% |
+| store buildings | 459 | -1.3% | 35.5% |
+| office buildings | 235 | -15.6% | 43.4% |
+| rentals, elevator | 261 | -18.1% | **53.8%** |
+
+The method holds up on small houses in the outer boroughs, which is the bulk of the
+transaction count and almost none of the invested capital. On the assets an acquisitions
+desk actually buys, elevator apartment buildings, offices, anything over 20,000 square
+feet, or anything in Manhattan, the median valuation is wrong by 40% to 60%.
+
+Note also that bias flips sign with size: small properties are undervalued by the method
+and large ones overvalued, so a single correction factor applied across a portfolio would
+make both worse.
+
+### Better comps help, and less than the effort implies
+
+| comp set | n | bias | MdAPE | within 10% |
+|---|---|---|---|---|
+| neighbourhood + class + size | 12,936 | -4.7% | 16.9% | 30.6% |
+| neighbourhood + class | 3,189 | -5.2% | 24.3% | 21.2% |
+| neighbourhood + category | 3,412 | -1.5% | 26.0% | 19.6% |
+| borough + category + size | 2,134 | -5.8% | 34.2% | 14.9% |
+| borough + category | 521 | +3.9% | 51.1% | 10.0% |
+
+Monotone, so the hierarchy is ordered correctly and comp selection genuinely matters.
+But the best comp set available anywhere in this data, same neighbourhood, same building
+class, same size band, still misses by 16.9% at the median and lands within a tenth of
+the price only 30.6% of the time.
+
+That is the floor, and it is not a comp-selection problem. Two buildings of the same
+class and size on the same street do not sell for the same price per square foot.
+
 ## Status
 
-Predictions committed. Scoring not yet run.
+Complete. Predictions were committed in `382233c`, before `score.py` existed.
 
 ## Data
 
