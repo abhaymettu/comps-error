@@ -2,3 +2,4 @@ data/*
 !data/predictions.csv
 __pycache__/
 *.pyc
+!data/rivals.csv.gz
