@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>How wrong is the comparable-sales method</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="The comparable-sales method valued 168,178 New
+York City sales it had never seen, in seven held-out years, measured against the city's
+free published market value and a hedonic regression.">
+<style>
+:root{
+  --surface:#fcfcfb; --plane:#f9f9f7; --ink:#0b0b0b; --ink2:#52514e;
+  --muted:#898781; --grid:#e1e0d9; --axis:#c3c2b7; --rule:rgba(11,11,11,.10);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s7:#4a3aa7;
+  --pos:#2a78d6; --neg:#e34948; --bar:#c3c2b7;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:where(:not([data-theme=light])){
+    --surface:#1a1a19; --plane:#0d0d0d; --ink:#fff; --ink2:#c3c2b7;
+    --muted:#898781; --grid:#2c2c2a; --axis:#383835; --rule:rgba(255,255,255,.10);
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s7:#9085e9;
+    --pos:#3987e5; --neg:#e66767; --bar:#4a4a46;
+    color-scheme:dark;
+  }
+}
+:root[data-theme=dark]{
+  --surface:#1a1a19; --plane:#0d0d0d; --ink:#fff; --ink2:#c3c2b7;
+  --muted:#898781; --grid:#2c2c2a; --axis:#383835; --rule:rgba(255,255,255,.10);
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s7:#9085e9;
+  --pos:#3987e5; --neg:#e66767; --bar:#4a4a46;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; overflow-x:hidden; overflow-wrap:break-word; background:var(--plane); color:var(--ink);
+  font:400 17px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;
+  -webkit-text-size-adjust:100%;
+}
+.slide{
+  background:var(--surface); max-width:66rem; margin:0 auto 1.5rem;
+  padding:4.5rem clamp(1.25rem,5vw,4.5rem) 3.5rem;
+  border-bottom:1px solid var(--rule);
+}
+.eyebrow{
+  font-size:.75rem; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--muted); margin:0 0 1.75rem; font-variant-numeric:tabular-nums;
+}
+h1{font-size:clamp(2rem,5.2vw,3.1rem); line-height:1.1; letter-spacing:-.02em;
+   font-weight:600; margin:0 0 1.5rem; max-width:22ch}
+h2{font-size:clamp(1.5rem,3.4vw,2.15rem); line-height:1.2; letter-spacing:-.015em;
+   font-weight:600; margin:0 0 1.25rem; max-width:30ch}
+h3{font-size:1.05rem; font-weight:600; margin:2rem 0 .5rem; letter-spacing:-.005em}
+.lede{font-size:1.075rem; color:var(--ink2); max-width:62ch; margin:0 0 2rem}
+.sub{font-size:1.15rem; color:var(--ink2); max-width:48ch; margin:0 0 2.5rem}
+.meta,.cap{font-size:.875rem; color:var(--muted); max-width:64ch; margin:1.25rem 0 0}
+.cap + .lede{margin-top:1.75rem}
+.src{font-size:.8125rem; color:var(--muted); margin:2.5rem 0 0;
+     padding-top:1rem; border-top:1px solid var(--rule)}
+.src a{color:var(--ink2)}
+code{font-size:.9em; font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+svg{width:100%; height:auto; display:block; margin:1rem 0 .5rem}
+.grid{stroke:var(--grid); stroke-width:1}
+.axis{stroke:var(--axis); stroke-width:1}
+.mark{stroke:var(--muted); stroke-width:1; stroke-dasharray:3 3}
+.ln{fill:none; stroke-width:2; stroke-linejoin:round; stroke-linecap:round}
+.ln.dash{stroke-dasharray:5 4}
+.dot{stroke:var(--surface); stroke-width:2}
+.leader{fill:none; stroke:var(--axis); stroke-width:1}
+text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.tick{font-size:12px; fill:var(--muted); font-variant-numeric:tabular-nums}
+.lab{font-size:13px; fill:var(--ink2)}
+.seg{font-size:11.5px; fill:var(--ink2)}
+.val{font-size:13px; fill:var(--ink2); font-variant-numeric:tabular-nums}
+.series{font-size:13px; fill:var(--ink); font-weight:600}
+.note{font-size:12px; fill:var(--muted)}
+.axis-lab,text.axis{font-size:12px; fill:var(--muted); stroke:none;
+  letter-spacing:.04em; text-transform:uppercase}
+.title{padding-top:6rem; padding-bottom:5rem}
+.hero{margin:2.5rem 0 1rem; display:flex; align-items:baseline; gap:1.25rem;
+      flex-wrap:wrap}
+.fig{font-size:clamp(4rem,13vw,7.5rem); line-height:.9; font-weight:600;
+     letter-spacing:-.04em; color:var(--neg)}
+.fig-cap{font-size:1rem; color:var(--ink2); max-width:18ch}
+.hero-row{display:flex; gap:2.5rem; flex-wrap:wrap; margin:2rem 0 1rem;
+          padding-top:1.5rem; border-top:1px solid var(--rule)}
+.stat{display:flex; flex-direction:column; gap:.35rem}
+.sv{font-size:1.75rem; font-weight:600; letter-spacing:-.02em;
+    font-variant-numeric:tabular-nums}
+.sl{font-size:.8125rem; color:var(--muted); font-variant-numeric:tabular-nums}
+.sl em{font-style:normal; color:var(--ink2); letter-spacing:.06em;
+       text-transform:uppercase; font-size:.9em}
+.tw{overflow-x:auto; margin:1rem 0}
+.split{display:grid; grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));
+       gap:0 2rem; margin:.5rem 0}
+.split table{min-width:0}
+.tcap{color:var(--muted); font-size:.8125rem; margin:.75rem 0 0}
+td.ch,th.ch{text-align:left; color:var(--muted)}
+table{border-collapse:collapse; width:100%; min-width:30rem; margin:1rem 0; font-size:.9375rem;
+      font-variant-numeric:tabular-nums}
+caption{text-align:left; color:var(--muted); font-size:.8125rem;
+        padding-bottom:.75rem}
+th,td{text-align:right; padding:.55rem .5rem; border-bottom:1px solid var(--rule)}
+thead th{color:var(--muted); font-weight:500; font-size:.8125rem}
+tbody th,th[scope=row],thead th:first-child{text-align:left; font-weight:500}
+.d{color:var(--muted); font-size:.85em}
+.dag{color:var(--muted); font-weight:400}
+details{margin:1.5rem 0 0; border-top:1px solid var(--rule); padding-top:1rem}
+summary{cursor:pointer; font-size:.875rem; color:var(--ink2)}
+.cols{display:grid; grid-template-columns:repeat(auto-fit,minmax(19rem,1fr));
+      gap:1rem 3rem}
+.cols h3{margin-top:0}
+ul,ol{padding-left:1.15rem; max-width:62ch}
+li{margin:.6rem 0; color:var(--ink2)}
+.recs{list-style:none; padding:0; max-width:none; counter-reset:r}
+.recs>li{counter-increment:r; margin:0 0 2.25rem; padding-left:3.25rem;
+         position:relative; color:var(--ink)}
+.recs>li::before{
+  content:counter(r); position:absolute; left:0; top:-.1rem;
+  font-size:1.5rem; font-weight:600; color:var(--muted);
+  font-variant-numeric:tabular-nums;
+}
+.recs h3{margin:0 0 .5rem; font-size:1.125rem; max-width:44ch}
+.recs p{margin:0; color:var(--ink2); max-width:62ch}
+.stop{border-left:3px solid var(--neg); padding:.25rem 0 .25rem 1.15rem;
+      color:var(--ink2); max-width:62ch}
+.basis{border-left:3px solid var(--axis); padding:.25rem 0 .25rem 1.15rem;
+       color:var(--ink2); max-width:64ch; font-size:.9375rem; margin:2rem 0 0}
+blockquote{margin:1rem 0; padding-left:1.15rem; border-left:3px solid var(--axis);
+           color:var(--ink2); font-size:.9375rem; max-width:64ch}
+.method li{font-size:.9375rem}
+.about{padding-top:3rem}
+.about h2{font-size:1.25rem; margin-bottom:1.25rem}
+.about .lede{max-width:58ch}
+.contact{margin:1.75rem 0 0; font-size:1rem}
+.contact a{color:var(--ink); text-decoration-color:var(--axis);
+          text-underline-offset:3px}
+@media (max-width:640px){
+  .slide{padding:3rem 1.25rem 2.5rem}
+  .hero-row{gap:1.5rem}
+}
+@media print{
+  :root{--surface:#fff; --plane:#fff; --ink:#000; --ink2:#333; --muted:#666;
+        --grid:#e0e0e0; --axis:#bbb; --rule:#ddd}
+  body{font-size:9pt; line-height:1.34}
+  .slide{break-after:page; page-break-after:always; border:0; margin:0;
+         padding:0 0 .5rem; max-width:none}
+  .slide:last-child{break-after:auto; page-break-after:auto}
+  /* the title block is a quarter-page; slide 01 shares it rather
+     than shrinking a chart below readable size elsewhere */
+  .slide.title{break-after:auto; page-break-after:auto;
+               padding-bottom:1.5rem; margin-bottom:1.5rem;
+               border-bottom:1px solid var(--rule)}
+  h1{font-size:21pt} h2{font-size:13.5pt; margin-bottom:.55rem}
+  h3{font-size:10.5pt; margin:.7rem 0 .3rem}
+  .fig{font-size:40pt}
+  .lede,.sub{font-size:9pt; margin-bottom:.7rem}
+  .cols{gap:.4rem 1.8rem}
+  .basis,.stop{margin-top:.7rem; padding-left:.8rem}
+  ol,ul{padding-left:1rem}
+  .eyebrow{margin-bottom:.8rem}
+  .hero{margin:1.2rem 0 .6rem} .hero-row{margin:1rem 0 .6rem; padding-top:.8rem}
+  .src{margin-top:.9rem; padding-top:.4rem}
+  li{margin:.25rem 0}
+  table{font-size:8.5pt} th,td{padding:.22rem .4rem}
+  caption{padding-bottom:.4rem}
+  svg{margin:.4rem 0 .3rem; max-height:78vh}
+  .cap{margin-top:.5rem}
+  /* supplementary tables and conversation ammunition are screen-only;
+     the PDF carries the argument, the charts, the controls and the gaps */
+  details, .no-print{display:none}
+  details.print-keep{display:block; break-inside:avoid}
+  details.print-keep>summary{display:none}
+  a{color:inherit; text-decoration:none}
+  @page{margin:9mm}
+}
+
+</style>
+</head>
+<body>
+<main>
+<section class="slide title">
+<p class="eyebrow">Valuation error &middot; New York City, 2019 to 2025</p>
+<h1>The first number in every property valuation is wrong by a fifth, and a free number
+beats it</h1>
+<p class="sub">Every commercial appraisal starts with comparable sales: recent trades of
+similar buildings nearby, at their price per square foot. Nobody publishes how wrong it
+is. This values 168,178 New York sales the method never saw, in seven held-out
+years, and scores it against the market value the city publishes for every lot at no
+cost.</p>
+<p class="meta">All figures from public New York City data. Estimates were committed to
+the repository before the code that scores them was written, which the git history
+shows.</p>
+</section>
+
+<section class="slide">
+<p class="eyebrow">01</p>
+<h2>Half of all valuations miss by more than 19%</h2>
+<p class="lede">The method is close to unbiased and individually unreliable, and those
+are different failures. The middle of the distribution sits 3.5% below
+the price, which one correction factor would fix. The width of it is what an underwriter
+actually carries, and no factor fixes that.</p>
+<svg viewBox="0 0 860 370" role="img" aria-label="Distribution of comparable-sales valuation error against sale price" preserveAspectRatio="xMidYMid meet"><line x1="56" x2="800" y1="300.0" y2="300.0" class="grid"/><text x="46" y="304.0" text-anchor="end" class="tick">0%</text><line x1="56" x2="800" y1="248.0" y2="248.0" class="grid"/><text x="46" y="252.0" text-anchor="end" class="tick">3%</text><line x1="56" x2="800" y1="196.0" y2="196.0" class="grid"/><text x="46" y="200.0" text-anchor="end" class="tick">6%</text><line x1="56" x2="800" y1="144.0" y2="144.0" class="grid"/><text x="46" y="148.0" text-anchor="end" class="tick">9%</text><line x1="56" x2="800" y1="92.0" y2="92.0" class="grid"/><text x="46" y="96.0" text-anchor="end" class="tick">13%</text><line x1="56" x2="800" y1="40.0" y2="40.0" class="grid"/><text x="46" y="44.0" text-anchor="end" class="tick">16%</text><rect x="57.0" y="297.9" width="27.8" height="2.1" rx="2" fill="var(--bar)"><title>-100% to -90% from the price: 0.1% of estimates</title></rect><rect x="86.8" y="296.6" width="27.8" height="3.4" rx="2" fill="var(--bar)"><title>-90% to -80% from the price: 0.2% of estimates</title></rect><rect x="116.5" y="292.9" width="27.8" height="7.1" rx="2" fill="var(--bar)"><title>-80% to -70% from the price: 0.4% of estimates</title></rect><rect x="146.3" y="286.2" width="27.8" height="13.8" rx="2" fill="var(--bar)"><title>-70% to -60% from the price: 0.8% of estimates</title></rect><rect x="176.0" y="273.4" width="27.8" height="26.6" rx="2" fill="var(--bar)"><title>-60% to -50% from the price: 1.6% of estimates</title></rect><rect x="205.8" y="248.9" width="27.8" height="51.1" rx="2" fill="var(--bar)"><title>-50% to -40% from the price: 3.1% of estimates</title></rect><rect x="235.6" y="194.4" width="27.8" height="105.6" rx="2" fill="var(--bar)"><title>-40% to -30% from the price: 6.4% of estimates</title></rect><rect x="265.3" y="109.8" width="27.8" height="190.2" rx="2" fill="var(--bar)"><title>-30% to -20% from the price: 11.5% of estimates</title></rect><rect x="295.1" y="40.0" width="27.8" height="260.0" rx="2" fill="var(--bar)"><title>-20% to -10% from the price: 15.7% of estimates</title></rect><rect x="324.8" y="44.0" width="27.8" height="256.0" rx="2" fill="var(--s2)"><title>-10% to +0% from the price: 15.4% of estimates</title></rect><rect x="354.6" y="102.7" width="27.8" height="197.3" rx="2" fill="var(--s2)"><title>+0% to +10% from the price: 11.9% of estimates</title></rect><rect x="384.4" y="161.2" width="27.8" height="138.8" rx="2" fill="var(--bar)"><title>+10% to +20% from the price: 8.4% of estimates</title></rect><rect x="414.1" y="203.7" width="27.8" height="96.3" rx="2" fill="var(--bar)"><title>+20% to +30% from the price: 5.8% of estimates</title></rect><rect x="443.9" y="233.1" width="27.8" height="66.9" rx="2" fill="var(--bar)"><title>+30% to +40% from the price: 4.0% of estimates</title></rect><rect x="473.6" y="253.7" width="27.8" height="46.3" rx="2" fill="var(--bar)"><title>+40% to +50% from the price: 2.8% of estimates</title></rect><rect x="503.4" y="267.1" width="27.8" height="32.9" rx="2" fill="var(--bar)"><title>+50% to +60% from the price: 2.0% of estimates</title></rect><rect x="533.2" y="274.3" width="27.8" height="25.7" rx="2" fill="var(--bar)"><title>+60% to +70% from the price: 1.5% of estimates</title></rect><rect x="562.9" y="281.4" width="27.8" height="18.6" rx="2" fill="var(--bar)"><title>+70% to +80% from the price: 1.1% of estimates</title></rect><rect x="592.7" y="285.4" width="27.8" height="14.6" rx="2" fill="var(--bar)"><title>+80% to +90% from the price: 0.9% of estimates</title></rect><rect x="622.4" y="287.8" width="27.8" height="12.2" rx="2" fill="var(--bar)"><title>+90% to +100% from the price: 0.7% of estimates</title></rect><rect x="652.2" y="290.1" width="27.8" height="9.9" rx="2" fill="var(--bar)"><title>+100% to +110% from the price: 0.6% of estimates</title></rect><rect x="682.0" y="291.7" width="27.8" height="8.3" rx="2" fill="var(--bar)"><title>+110% to +120% from the price: 0.5% of estimates</title></rect><rect x="711.7" y="293.0" width="27.8" height="7.0" rx="2" fill="var(--bar)"><title>+120% to +130% from the price: 0.4% of estimates</title></rect><rect x="741.5" y="293.9" width="27.8" height="6.1" rx="2" fill="var(--bar)"><title>+130% to +140% from the price: 0.4% of estimates</title></rect><rect x="771.2" y="236.8" width="27.8" height="63.2" rx="2" fill="var(--bar)"><title>+140% to +150% from the price: 3.8% of estimates</title></rect><line x1="353.6" x2="353.6" y1="32" y2="300" class="mark"/><text x="360.6" y="28" class="note">the price</text><text x="56.0" y="322" text-anchor="middle" class="tick">-100%</text><text x="204.8" y="322" text-anchor="middle" class="tick">-50%</text><text x="353.6" y="322" text-anchor="middle" class="tick">+0%</text><text x="502.4" y="322" text-anchor="middle" class="tick">+50%</text><text x="651.2" y="322" text-anchor="middle" class="tick">+100%</text><text x="800.0" y="322" text-anchor="middle" class="tick">+150%</text><line x1="56" x2="800" y1="300" y2="300" class="axis"/><text x="56" y="348" class="axis">estimate against the price, each bar ten points wide</text><text x="56" y="24" class="axis">share of estimates</text><text x="800" y="68" text-anchor="end" class="series">27% within a tenth of the price</text><text x="800" y="88" text-anchor="end" class="note">15% miss by more than half</text></svg>
+<p class="cap">Every held-out estimate against what the building sold for. The shaded
+bars are the 27% that land within a tenth of the price. Estimates
+beyond +150% and below -100% are folded into the end bars.</p>
+<div class="hero-row">
+<div class="stat"><span class="sv">19.4%</span><span class="sl">median absolute error</span></div>
+<div class="stat"><span class="sv">-3.5%</span><span class="sl">median signed error</span></div>
+<div class="stat"><span class="sv">27.3%</span><span class="sl">within a tenth of the price</span></div>
+<div class="stat"><span class="sv">5.7%</span><span class="sl">overvalued by twofold or more</span></div>
+</div>
+</section>
+
+<section class="slide">
+<p class="eyebrow">02</p>
+<h2>The number the city gives away is closer than the one an analyst builds</h2>
+<p class="lede">Comps had never been measured against anything. Two rivals see exactly
+the same information: the market value New York publishes for every tax lot on the
+assessment roll before the year begins, and a hedonic regression fitted on the same
+twelve months of sales the comps are drawn from. Both beat the comps, on the same
+properties, in the same years.</p>
+<div class="tw"><table><caption>Sales priced by all three methods, 2023 to 2025, the years the assessment roll covers.</caption><thead><tr><th></th><th>n</th><th>bias</th><th>median absolute error</th><th>within 10%</th><th>within 20%</th></tr></thead><tbody><tr><th scope=row>comparable sales</th><td>64,063</td><td>-1.9%</td><td>19.9%</td><td>26.8%</td><td>50.1%</td></tr><tr><th scope=row>hedonic regression</th><td>64,063</td><td>-6.8%</td><td>17.6%</td><td>29.2%</td><td>55.8%</td></tr><tr><th scope=row>city market value</th><td>64,063</td><td>-5.8%</td><td>17.7%</td><td>30.8%</td><td>54.5%</td></tr></tbody></table></div>
+<p class="cap">The assessment roll is free, takes no work, and is published before the
+sale. It is 2.2 points closer
+at the median than the workup, and lands within a tenth of the price
+4.0 points more
+often.</p>
+<p class="basis">This is not an argument for the assessment roll, which is worse than
+comps in Manhattan and on mid-sized buildings. It is an argument that the comparable
+sales workup, as practised, is not buying the accuracy it is assumed to buy, and that
+nobody had checked.</p>
+</section>
+
+<section class="slide">
+<p class="eyebrow">03</p>
+<h2>It fails hardest exactly where the money is</h2>
+<p class="lede">The method holds up on small houses in the outer boroughs, which is most
+of the transaction count and almost none of the invested capital. On anything an
+acquisitions desk would actually buy the median valuation is wrong by half.</p>
+<svg viewBox="0 0 860 375" role="img" aria-label="Median absolute valuation error by building size, three methods" preserveAspectRatio="xMidYMid meet"><line x1="62" x2="800" y1="300.0" y2="300.0" class="grid"/><text x="52" y="304.0" text-anchor="end" class="tick">0%</text><line x1="62" x2="800" y1="248.0" y2="248.0" class="grid"/><text x="52" y="252.0" text-anchor="end" class="tick">16%</text><line x1="62" x2="800" y1="196.0" y2="196.0" class="grid"/><text x="52" y="200.0" text-anchor="end" class="tick">32%</text><line x1="62" x2="800" y1="144.0" y2="144.0" class="grid"/><text x="52" y="148.0" text-anchor="end" class="tick">48%</text><line x1="62" x2="800" y1="92.0" y2="92.0" class="grid"/><text x="52" y="96.0" text-anchor="end" class="tick">64%</text><line x1="62" x2="800" y1="40.0" y2="40.0" class="grid"/><text x="52" y="44.0" text-anchor="end" class="tick">80%</text><rect x="80.5" y="244.2" width="32.9" height="55.8" rx="3" fill="var(--s2)"><title>comparable sales, under 2k sqft: 17.2% median absolute error on 90,280 sales</title></rect><text x="96.9" y="237.2" text-anchor="middle" class="tick">17</text><rect x="117.3" y="254.6" width="32.9" height="45.4" rx="3" fill="var(--s1)"><title>city market value, under 2k sqft: 14.0% median absolute error on 33,250 sales</title></rect><text x="133.8" y="247.6" text-anchor="middle" class="tick">14</text><rect x="154.2" y="248.3" width="32.9" height="51.7" rx="3" fill="var(--s3)"><title>hedonic regression, under 2k sqft: 15.9% median absolute error on 90,280 sales</title></rect><text x="170.7" y="241.3" text-anchor="middle" class="tick">16</text><text x="135.8" y="322" text-anchor="middle" class="lab">under 2k sqft</text><rect x="228.0" y="233.2" width="32.9" height="66.8" rx="3" fill="var(--s2)"><title>comparable sales, 2k to 5k: 20.6% median absolute error on 65,409 sales</title></rect><text x="244.5" y="226.2" text-anchor="middle" class="tick">21</text><rect x="264.9" y="232.1" width="32.9" height="67.9" rx="3" fill="var(--s1)"><title>city market value, 2k to 5k: 20.9% median absolute error on 25,712 sales</title></rect><text x="281.4" y="225.1" text-anchor="middle" class="tick">21</text><rect x="301.9" y="238.7" width="32.9" height="61.3" rx="3" fill="var(--s3)"><title>hedonic regression, 2k to 5k: 18.8% median absolute error on 65,409 sales</title></rect><text x="318.3" y="231.7" text-anchor="middle" class="tick">19</text><text x="283.4" y="322" text-anchor="middle" class="lab">2k to 5k</text><rect x="375.6" y="162.8" width="32.9" height="137.2" rx="3" fill="var(--s2)"><title>comparable sales, 5k to 20k: 42.2% median absolute error on 9,159 sales</title></rect><text x="392.1" y="155.8" text-anchor="middle" class="tick">42</text><rect x="412.5" y="114.3" width="32.9" height="185.7" rx="3" fill="var(--s1)"><title>city market value, 5k to 20k: 57.1% median absolute error on 3,833 sales</title></rect><text x="429.0" y="107.3" text-anchor="middle" class="tick">57</text><rect x="449.4" y="184.1" width="32.9" height="115.9" rx="3" fill="var(--s3)"><title>hedonic regression, 5k to 20k: 35.7% median absolute error on 9,159 sales</title></rect><text x="465.9" y="177.1" text-anchor="middle" class="tick">36</text><text x="431.0" y="322" text-anchor="middle" class="lab">5k to 20k</text><rect x="523.2" y="144.6" width="32.9" height="155.4" rx="3" fill="var(--s2)"><title>comparable sales, 20k to 100k: 47.8% median absolute error on 2,641 sales</title></rect><text x="539.7" y="137.6" text-anchor="middle" class="tick">48</text><rect x="560.1" y="110.2" width="32.9" height="189.8" rx="3" fill="var(--s1)"><title>city market value, 20k to 100k: 58.4% median absolute error on 1,034 sales</title></rect><text x="576.6" y="103.2" text-anchor="middle" class="tick">58</text><rect x="597.0" y="150.9" width="32.9" height="149.1" rx="3" fill="var(--s3)"><title>hedonic regression, 20k to 100k: 45.9% median absolute error on 2,641 sales</title></rect><text x="613.5" y="143.9" text-anchor="middle" class="tick">46</text><text x="578.6" y="322" text-anchor="middle" class="lab">20k to 100k</text><rect x="670.9" y="82.7" width="32.9" height="217.3" rx="3" fill="var(--s2)"><title>comparable sales, 100k+: 66.9% median absolute error on 689 sales</title></rect><text x="687.3" y="75.7" text-anchor="middle" class="tick">67</text><rect x="707.8" y="139.5" width="32.9" height="160.5" rx="3" fill="var(--s1)"><title>city market value, 100k+: 49.4% median absolute error on 234 sales</title></rect><text x="724.2" y="132.5" text-anchor="middle" class="tick">49</text><rect x="744.6" y="72.6" width="32.9" height="227.4" rx="3" fill="var(--s3)"><title>hedonic regression, 100k+: 70.0% median absolute error on 689 sales</title></rect><text x="761.1" y="65.6" text-anchor="middle" class="tick">70</text><text x="726.2" y="322" text-anchor="middle" class="lab">100k+</text><line x1="62" x2="800" y1="300" y2="300" class="axis"/><text x="62" y="24" class="axis">median absolute error</text><rect x="62" y="342" width="10" height="10" rx="2" fill="var(--s2)"/><text x="78" y="351" class="note">comparable sales</text><rect x="252" y="342" width="10" height="10" rx="2" fill="var(--s1)"/><text x="268" y="351" class="note">city market value</text><rect x="442" y="342" width="10" height="10" rx="2" fill="var(--s3)"/><text x="458" y="351" class="note">hedonic regression</text></svg>
+<p class="cap">Median absolute error by building size. Every method degrades with size,
+so this is a property of the asset class rather than of any one technique: large
+buildings are heterogeneous and trade rarely, and there is no comp set that fixes that.</p>
+<p class="lede">On the 3,330 buildings of 20,000 square feet or more, comps miss
+by 51.2% at the median and the free number misses by
+57.6%. Bias also flips sign with size, so a single portfolio-level
+correction would make both ends worse.</p>
+</section>
+
+<section class="slide">
+<p class="eyebrow">04</p>
+<h2>Seven years, one answer: it is steadily noisy, not occasionally noisy</h2>
+<p class="lede">A method that degrades in volatile markets is a different warning from
+one that is always this wide. Rolling the cutoff back through 2019 puts the method
+through the 2020 freeze, the 2021 melt-up and the 2023 rate shock. The error barely
+moves.</p>
+<svg viewBox="0 0 860 330" role="img" aria-label="Median absolute valuation error by held-out year, three methods" preserveAspectRatio="xMidYMid meet"><line x1="62" x2="720" y1="260.0" y2="260.0" class="grid"/><text x="52" y="264.0" text-anchor="end" class="tick">10%</text><line x1="62" x2="720" y1="186.7" y2="186.7" class="grid"/><text x="52" y="190.7" text-anchor="end" class="tick">15%</text><line x1="62" x2="720" y1="113.3" y2="113.3" class="grid"/><text x="52" y="117.3" text-anchor="end" class="tick">20%</text><line x1="62" x2="720" y1="40.0" y2="40.0" class="grid"/><text x="52" y="44.0" text-anchor="end" class="tick">25%</text><polyline class="ln" stroke="var(--s2)" points="62.0,120.0 171.7,127.2 281.3,131.3 391.0,129.0 500.7,127.9 610.3,107.1 720.0,107.7"/><circle cx="62.0" cy="120.0" r="4.5" fill="var(--s2)" class="dot"><title>comparable sales, 2019: 19.5% on 26,576 sales</title></circle><circle cx="171.7" cy="127.2" r="4.5" fill="var(--s2)" class="dot"><title>comparable sales, 2020: 19.1% on 20,558 sales</title></circle><circle cx="281.3" cy="131.3" r="4.5" fill="var(--s2)" class="dot"><title>comparable sales, 2021: 18.8% on 29,606 sales</title></circle><circle cx="391.0" cy="129.0" r="4.5" fill="var(--s2)" class="dot"><title>comparable sales, 2022: 18.9% on 27,174 sales</title></circle><circle cx="500.7" cy="127.9" r="4.5" fill="var(--s2)" class="dot"><title>comparable sales, 2023: 19.0% on 20,673 sales</title></circle><circle cx="610.3" cy="107.1" r="4.5" fill="var(--s2)" class="dot"><title>comparable sales, 2024: 20.4% on 21,422 sales</title></circle><circle cx="720.0" cy="107.7" r="4.5" fill="var(--s2)" class="dot"><title>comparable sales, 2025: 20.4% on 22,169 sales</title></circle><polyline class="ln" stroke="var(--s1)" points="500.7,153.8 610.3,156.1 720.0,131.7"/><circle cx="500.7" cy="153.8" r="4.5" fill="var(--s1)" class="dot"><title>city market value, 2023: 17.2% on 20,573 sales</title></circle><circle cx="610.3" cy="156.1" r="4.5" fill="var(--s1)" class="dot"><title>city market value, 2024: 17.1% on 21,359 sales</title></circle><circle cx="720.0" cy="131.7" r="4.5" fill="var(--s1)" class="dot"><title>city market value, 2025: 18.8% on 22,131 sales</title></circle><polyline class="ln" stroke="var(--s3)" points="62.0,124.3 171.7,145.6 281.3,153.2 391.0,152.1 500.7,171.6 610.3,139.3 720.0,134.4"/><circle cx="62.0" cy="124.3" r="4.5" fill="var(--s3)" class="dot"><title>hedonic regression, 2019: 19.3% on 26,576 sales</title></circle><circle cx="171.7" cy="145.6" r="4.5" fill="var(--s3)" class="dot"><title>hedonic regression, 2020: 17.8% on 20,558 sales</title></circle><circle cx="281.3" cy="153.2" r="4.5" fill="var(--s3)" class="dot"><title>hedonic regression, 2021: 17.3% on 29,606 sales</title></circle><circle cx="391.0" cy="152.1" r="4.5" fill="var(--s3)" class="dot"><title>hedonic regression, 2022: 17.4% on 27,174 sales</title></circle><circle cx="500.7" cy="171.6" r="4.5" fill="var(--s3)" class="dot"><title>hedonic regression, 2023: 16.0% on 20,673 sales</title></circle><circle cx="610.3" cy="139.3" r="4.5" fill="var(--s3)" class="dot"><title>hedonic regression, 2024: 18.2% on 21,422 sales</title></circle><circle cx="720.0" cy="134.4" r="4.5" fill="var(--s3)" class="dot"><title>hedonic regression, 2025: 18.6% on 22,169 sales</title></circle><text x="732.0" y="111.7" class="series">comparable sales</text><text x="732.0" y="135.7" class="series">city market value</text><text x="732.0" y="152.7" class="series">hedonic regression</text><text x="62.0" y="284" text-anchor="middle" class="tick">2019</text><text x="171.7" y="284" text-anchor="middle" class="tick">2020</text><text x="281.3" y="284" text-anchor="middle" class="tick">2021</text><text x="391.0" y="284" text-anchor="middle" class="tick">2022</text><text x="500.7" y="284" text-anchor="middle" class="tick">2023</text><text x="610.3" y="284" text-anchor="middle" class="tick">2024</text><text x="720.0" y="284" text-anchor="middle" class="tick">2025</text><line x1="62" x2="720" y1="260" y2="260" class="axis"/><text x="62" y="24" class="axis">median absolute error</text><text x="62" y="308" class="note">the assessment roll is published from 2023 on, so the free rival cannot be scored earlier</text></svg>
+<div class="tw"><table><caption>Comparable sales, each year valued from the twelve months before it.</caption><thead><tr><th>year</th><th>n</th><th>bias</th><th>median absolute error</th><th>within 20%</th></tr></thead><tbody><tr><th scope=row>2019</th><td>26,576</td><td>-2.5%</td><td>19.5%</td><td>50.9%</td></tr><tr><th scope=row>2020</th><td>20,558</td><td>-2.2%</td><td>19.1%</td><td>52.1%</td></tr><tr><th scope=row>2021</th><td>29,606</td><td>-6.4%</td><td>18.8%</td><td>52.8%</td></tr><tr><th scope=row>2022</th><td>27,174</td><td>-5.9%</td><td>18.9%</td><td>52.4%</td></tr><tr><th scope=row>2023</th><td>20,673</td><td>1.8%</td><td>19.0%</td><td>52.1%</td></tr><tr><th scope=row>2024</th><td>21,422</td><td>-3.3%</td><td>20.4%</td><td>49.2%</td></tr><tr><th scope=row>2025</th><td>22,169</td><td>-4.3%</td><td>20.4%</td><td>49.2%</td></tr></tbody></table></div>
+<p class="cap">The spread between the best and the worst year is
+1.6 points of median absolute error.
+Whatever is wrong with the method is not a market condition.</p>
+</section>
+
+<section class="slide">
+<p class="eyebrow">05</p>
+<h2>Where comps can be trusted, and what that leaves out</h2>
+<p class="lede">A warning is not usable. The next property is either one the method
+handles or one it does not, so the conditions are worth stating. The tolerance below is
+the one a lender applies rather than a target: median absolute error under 20%, and at
+least half of estimates within 20% of the price. The rule is cut on
+2019 to 2023 and checked on
+2024 and 2025.</p>
+<div class="tw"><table><caption>Conditions known before the sale: the building&#x27;s size, and how tight a comp set it fell into. Scored on the fitting years.</caption><thead><tr><th>condition</th><th>n</th><th>median absolute error</th><th>within 20%</th><th>verdict</th></tr></thead><tbody><tr><th scope=row>under 2k sqft, nbhd+class+size</th><td>51,353</td><td>15.4%</td><td>62.1%</td><td>trust</td></tr><tr><th scope=row>2k to 5k, nbhd+class+size</th><td>27,367</td><td>17.4%</td><td>55.9%</td><td>trust</td></tr><tr><th scope=row>under 2k sqft, nbhd+class</th><td>7,802</td><td>24.1%</td><td>41.6%</td><td>do not</td></tr><tr><th scope=row>2k to 5k, nbhd+class</th><td>7,723</td><td>22.7%</td><td>45.1%</td><td>do not</td></tr><tr><th scope=row>2k to 5k, nbhd+category</th><td>6,791</td><td>23.2%</td><td>44.5%</td><td>do not</td></tr><tr><th scope=row>under 2k sqft, nbhd+category</th><td>6,726</td><td>21.7%</td><td>46.3%</td><td>do not</td></tr><tr><th scope=row>2k to 5k, boro+category+size</th><td>5,455</td><td>32.9%</td><td>32.1%</td><td>do not</td></tr><tr><th scope=row>5k to 20k, boro+category+size</th><td>2,468</td><td>40.0%</td><td>27.6%</td><td>do not</td></tr><tr><th scope=row>5k to 20k, nbhd+category</th><td>1,676</td><td>41.9%</td><td>25.0%</td><td>do not</td></tr><tr><th scope=row>under 2k sqft, boro+category+size</th><td>1,286</td><td>26.9%</td><td>40.4%</td><td>do not</td></tr><tr><th scope=row>5k to 20k, boro+category</th><td>893</td><td>41.7%</td><td>26.8%</td><td>do not</td></tr><tr><th scope=row>5k to 20k, nbhd+class</th><td>866</td><td>47.9%</td><td>22.6%</td><td>do not</td></tr></tbody></table></div>
+<p class="lede">Two conditions survive, and both are small buildings with a
+same-neighbourhood, same-class, same-size comp set. Held out on
+2024 and 2025 the split holds:
+16.7% median absolute error inside the rule against 27.5%
+outside it.</p>
+<svg viewBox="0 0 860 200" role="img" aria-label="Share of transactions and of dollars covered by the safe rule" preserveAspectRatio="xMidYMid meet"><text x="136" y="48" text-anchor="end" class="lab">transactions</text><rect x="150" y="30" width="361.6" height="26" rx="4" fill="var(--s3)"><title>inside the rule: 57.4%</title></rect><rect x="511.6" y="30" width="268.4" height="26" rx="4" fill="var(--bar)"><title>outside the rule: 42.6%</title></rect><text x="160" y="76" class="seg">57% inside, 25,017 of 43,591</text><text x="136" y="126" text-anchor="end" class="lab">dollars</text><rect x="150" y="108" width="180.4" height="26" rx="4" fill="var(--s3)"><title>inside the rule: 28.6%</title></rect><rect x="330.4" y="108" width="449.6" height="26" rx="4" fill="var(--bar)"><title>outside the rule: 71.4%</title></rect><text x="160" y="154" class="seg">29% inside, $24.8bn of $86.7bn</text><text x="150" y="16" class="axis">covered by the rule</text></svg>
+<p class="cap">The rule covers 57% of transactions and
+29% of the dollars. The method is dependable on the small end of the
+market, in volume, and the value it cannot price is the value worth pricing.</p>
+<p class="basis">A larger comp set does not rescue anything. Within the tightest comp
+set, cells with 8 to 19 comps and cells with 100 or more give the same error to within a
+point, so the effort of widening a comp search buys nothing measurable.</p>
+</section>
+
+<section class="slide">
+<p class="eyebrow">06</p>
+<h2>How this was measured, and how the blindness is checkable</h2>
+<div class="cols">
+<div>
+<h3>The split</h3>
+<p>For each held-out year the comp pool is the twelve months before it, and nothing on
+or after 1 January of that year touches an estimate. The hedonic regression is fitted on
+the same window. The assessment is the market value from the fiscal roll published in
+the previous calendar year.</p>
+<h3>The proof</h3>
+<p>Estimates are written to the repository and committed before the scoring code exists.
+The git history shows the order, which is not something a portfolio piece can usually
+demonstrate about itself.</p>
+</div>
+<div>
+<h3>Two traps in the source</h3>
+<p>New York records the sale of a package of lots as one row per lot, each carrying the
+full package price, so a $40m portfolio of eight buildings becomes eight $40m buildings.
+Those are folded into single transactions.</p>
+<p>It also sometimes records a single apartment sale against the building's tax lot with
+the building's floor area, so a $130,000 flat arrives carrying 1.4 million square feet.
+Those are found and dropped, and the estimates were also rebuilt with them out of the
+comp pool, which is what the figures here use.</p>
+</div>
+</div>
+<p class="src">New York City Citywide Annualized Calendar Sales (<code>w2pb-icbu</code>)
+and Property Valuation and Assessment Data (<code>8y4t-faws</code>), both public. Sales
+under $100,000 are nominal conveyances rather than sales and are excluded, as are
+records with no building area. Code and frozen estimates:
+<a href="https://github.com/abhaymettu/comps-error">github.com/abhaymettu/comps-error</a>.</p>
+</section>
+</main>
+</body>
+</html>

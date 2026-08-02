@@ -26,15 +26,15 @@ DATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 RIVALS = os.path.join(DATA, "rivals.csv.gz")
 
 
-def source():
-    """Which frozen prediction file to score. Any path argument wins.
+def source(path=None):
+    """Which frozen prediction file to score. An explicit path or an argument wins.
 
     rivals.py also emits data/clean.csv.gz, a rerun with the mismeasured unit sales
     taken out of the comp pool as well as the answer key. Scoring it needs no change
     here, which is the point: the scorer is fixed before that file exists.
     """
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    return args[0] if args else RIVALS
+    return path or (args[0] if args else RIVALS)
 
 
 METHODS = ["comps", "hedonic", "assessed"]
@@ -67,9 +67,9 @@ def condo_unit_keys():
             for r in folded if rivals.is_unit_sale(r)}
 
 
-def load():
+def load(path=None):
     """Every frozen estimate, tagged with whether the source measured the asset."""
-    with gzip.open(source(), "rt", newline="") as fh:
+    with gzip.open(source(path), "rt", newline="") as fh:
         rows = list(csv.DictReader(fh))
     units = condo_unit_keys()
     for r in rows:
