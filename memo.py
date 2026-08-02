@@ -264,7 +264,6 @@ def build():
         rule_rows.append((f"{k[0]}, {k[1]}", f"{s['n']:,}", pct(s["mdape"]),
                           pct(s["within20"]), "trust" if ok else "do not"))
 
-    style = open(os.path.join(os.path.dirname(OUT), "memo.css")).read()
 
     doc = f"""<!doctype html>
 <html lang="en">
@@ -275,11 +274,15 @@ def build():
 <meta name="description" content="The comparable-sales method valued {len(rows):,} New
 York City sales it had never seen, in seven held-out years, measured against the city's
 free published market value and a hedonic regression.">
-<style>
-{style}
-</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/research/memo.css">
 </head>
 <body>
+<header class="top">
+<div class="wrap breadcrumb"><a href="/">Abhay Mettu</a><span>/</span><a href="/research/">Research</a></div>
+</header>
 <main>
 <section class="slide title">
 <p class="eyebrow">Valuation error &middot; New York City, {years[0]} to {years[-1]}</p>
@@ -428,11 +431,9 @@ under $100,000 are nominal conveyances rather than sales and are excluded, as ar
 records with no building area. Code and frozen estimates:
 <a href="https://github.com/abhaymettu/comps-error">github.com/abhaymettu/comps-error</a>.</p>
 </section>
-<footer style="max-width:66rem;margin:0 auto;padding:2.4rem clamp(1.25rem,5vw,4.5rem) 4rem;
-  border-top:1px solid var(--rule);display:flex;gap:1.6rem;flex-wrap:wrap;
-  font-size:.8125rem;letter-spacing:.04em">
-<a href="/research/" style="color:var(--muted);text-decoration:none">&larr; All research</a>
-<a href="/" style="color:var(--muted);text-decoration:none">abhaymettu.com</a>
+<footer class="wrap">
+<a href="/research/">&larr; All research</a>
+<a href="/">abhaymettu.com</a>
 </footer>
 </main>
 </body>
@@ -443,10 +444,18 @@ records with no building area. Code and frozen estimates:
 
 def main():
     doc, _ = build()
-    os.makedirs(os.path.dirname(OUT), exist_ok=True)
-    with open(OUT, "w") as fh:
-        fh.write(doc)
-    print(f"wrote {OUT} ({len(doc) / 1024:.0f}kb)")
+    # The site keeps its copy under research/<slug>/, marked `external` in its paper
+    # JSON so the section generator leaves the markup alone. Pass that directory as an
+    # argument and both are written from here, which is what stops the published page
+    # drifting from the analysis. A footer once got hand-added to a published copy and
+    # would have been silently dropped by the next run.
+    targets = [OUT] + [os.path.join(d, "index.html")
+                       for d in sys.argv[1:] if not d.startswith("-")]
+    for path in targets:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w") as fh:
+            fh.write(doc)
+        print(f"wrote {path} ({len(doc) / 1024:.0f}kb)")
 
 
 def test():
@@ -466,7 +475,10 @@ def test():
     assert pct(ctx["comps"]["within10"]) in doc, "the within-10% figure is missing"
     assert ctx["inside"]["mdape"] < ctx["outside"]["mdape"], "the rule is backwards"
 
-    assert "—" not in doc and "–" not in doc, "a dash got into the copy"
+    # House style: no em dashes anywhere on the site. Plain hyphens are fine, so
+    # this checks the two dash characters only, not "-".
+    assert "\u2014" not in doc and "&mdash;" not in doc, "an em dash got into the copy"
+    assert "\u2013" not in doc and "&ndash;" not in doc, "an en dash got into the copy"
 
     print(f"ok: {charts} charts parse, every headline figure is computed, "
           f"{len(ctx['rows']):,} estimates behind the page")
