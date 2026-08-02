@@ -428,6 +428,12 @@ under $100,000 are nominal conveyances rather than sales and are excluded, as ar
 records with no building area. Code and frozen estimates:
 <a href="https://github.com/abhaymettu/comps-error">github.com/abhaymettu/comps-error</a>.</p>
 </section>
+<footer style="max-width:66rem;margin:0 auto;padding:2.4rem clamp(1.25rem,5vw,4.5rem) 4rem;
+  border-top:1px solid var(--rule);display:flex;gap:1.6rem;flex-wrap:wrap;
+  font-size:.8125rem;letter-spacing:.04em">
+<a href="/research/" style="color:var(--muted);text-decoration:none">&larr; All research</a>
+<a href="/" style="color:var(--muted);text-decoration:none">abhaymettu.com</a>
+</footer>
 </main>
 </body>
 </html>
